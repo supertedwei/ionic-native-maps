@@ -21,20 +21,20 @@ export class MapPage {
 		this.platform.ready().then(() => {
 
 		    let mapLoaded = this.maps.init(this.mapElement.nativeElement, this.pleaseConnect.nativeElement);
-	    	// let locationsLoaded = this.locations.load();
+	    	let locationsLoaded = this.locations.load();
 
-	    	// Promise.all([
-	    	// 	mapLoaded,
-	    	// 	locationsLoaded
-	    	// ]).then((result) => {
+	    	Promise.all([
+	    		mapLoaded,
+	    		locationsLoaded
+	    	]).then((result) => {
 
-	    	// 	let locations = result[1];
+	    		let locations = result[1];
 
-	    	// 	for(let location of locations){
-	    	// 		this.maps.addMarker(location.latitude, location.longitude);
-	    	// 	}
+	    		for(let location of locations){
+	    			this.maps.addMarker(location.latitude, location.longitude);
+	    		}
 
-	    	// });
+	    	});
 
 		});
 
