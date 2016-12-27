@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Locations } from '../../providers/locations';
-import { NavController, Platform } from 'ionic-angular';
-import { GoogleMap, GoogleMapsEvent, GoogleMapsLatLng } from 'ionic-native';
+import { GoogleMap, GoogleMapsEvent, GoogleMapsLatLng, CameraPosition, GoogleMapsMarkerOptions,
+          GoogleMapsMarker} from 'ionic-native';
 
 @Component({
   selector: 'page-map',
@@ -11,61 +11,68 @@ export class MapPage {
 
 	map: GoogleMap;
 
-	constructor(public navCtrl: NavController, public platform: Platform, public locations: Locations) {
+	constructor(public locations: Locations) {
 
 	}
 
-  ionViewDidLoad(){
+  // Load map only after view is initialize
+  ngAfterViewInit() {
+    this.loadMap();
+  }
 
-		this.platform.ready().then(() => {
+  loadMap() {
+    
+    // create LatLng object
+    let ionic: GoogleMapsLatLng = new GoogleMapsLatLng(40.713744, -74.009056);
 
-			  let location = new GoogleMapsLatLng(-34.9290,138.6010);
- 
-        this.map = new GoogleMap('map', {
-          'backgroundColor': 'white',
-          'controls': {
-            'compass': true,
-            'myLocationButton': true,
-            'indoorPicker': true,
-            'zoom': true
-          },
-          'gestures': {
-            'scroll': true,
-            'tilt': true,
-            'rotate': true,
-            'zoom': true
-          },
-          'camera': {
-            'latLng': location,
-            'tilt': 30,
-            'zoom': 15,
-            'bearing': 50
-          }
-        });
- 
-        this.map.on(GoogleMapsEvent.MAP_READY).subscribe(() => {
-            console.log('Map is ready!');
-        });
+    this.map = new GoogleMap('map', {
+        'backgroundColor': 'white',
+        'controls': {
+          'compass': true,
+          'myLocationButton': true,
+          'indoorPicker': true,
+          'zoom': true
+        },
+        'gestures': {
+          'scroll': true,
+          'tilt': true,
+          'rotate': true,
+          'zoom': true
+        },
+        'camera': {
+          'latLng': ionic,
+          'tilt': 30,
+          'zoom': 15,
+          'bearing': 50
+        }
+    });
 
+    // listen to MAP_READY event
+    this.map.one(GoogleMapsEvent.MAP_READY).then(() => {
+      console.log('Map is ready!')
 
-		    // let mapLoaded = this.maps.init(this.mapElement.nativeElement, this.pleaseConnect.nativeElement);
-	    	// let locationsLoaded = this.locations.load();
+      // let markerOptions: GoogleMapsMarkerOptions = {
+      //   position: ionic,
+      //   title: 'Ionic'
+      // };
 
-	    	// Promise.all([
-	    	// 	mapLoaded,
-	    	// 	locationsLoaded
-	    	// ]).then((result) => {
+      // this.map.addMarker(markerOptions).then((marker: GoogleMapsMarker) => {
+      //   marker.showInfoWindow();
+      //   console.log('showInfoWindow()')
+      // });
 
-	    	// 	let locations = result[1];
+      let locationsLoaded = this.locations.load().then((result) => {
+	    	let locations = result;
+	    	for(let location of locations){
+          var markerOptions: GoogleMapsMarkerOptions = {
+            position: new GoogleMapsLatLng(location.latitude, location.longitude),
+            title: location.title
+          };
+	    	  this.map.addMarker(markerOptions);
+	    	}
 
-	    	// 	for(let location of locations){
-	    	// 		this.maps.addMarker(location.latitude, location.longitude);
-	    	// 	}
+	    });
+    });
 
-	    	// });
-
-		});
-
-	}
-
+  }
 }
